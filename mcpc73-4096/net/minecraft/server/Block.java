@@ -870,6 +870,117 @@ public class Block {
       return ret;
    }
 
+    /**
+     * Determines if a specified mob type can spawn on this block, returning false will 
+     * prevent any mob from spawning on the block.
+     * 
+     * @param type The Mob Category Type
+     * @param world The current world
+     * @param x The X Position
+     * @param y The Y Position
+     * @param z The Z Position
+     * @return True to allow a mob of the specified category to spawn, false to prevent it.
+     */
+    public boolean canCreatureSpawn(EnumCreatureType type, World world, int x, int y, int z) 
+    {
+        int meta = world.getData(x, y, z);
+        if (this instanceof BlockStep)
+        {
+            if (mod_MinecraftForge.SPAWNER_ALLOW_ON_INVERTED)
+            {
+                return (((meta & 8) == 8) || a());   
+            }
+            else
+            {
+                return g(this.id);
+            }
+        }
+        else if (this instanceof BlockStairs)
+        {
+            if (mod_MinecraftForge.SPAWNER_ALLOW_ON_INVERTED)
+            {
+                return ((meta & 4) != 0);
+            }
+            else
+            {
+                return g(this.id);
+            }
+        }
+        return isBlockSolidOnSide(world, x, y, z, 1);
+    }
+    /**
+     * Determines if this block is classified as a Bed, Allowing 
+     * players to sleep in it, though the block has to specifically 
+     * perform the sleeping functionality in it's activated event.
+     * 
+     * @param world The current world
+     * @param x X Position
+     * @param y Y Position
+     * @param z Z Position
+     * @param player The player or camera entity, null in some cases.
+     * @return True to treat this as a bed
+     */
+    public boolean isBed(World world, int x, int y, int z, EntityLiving player)
+    {
+        return id == Block.BED.id;
+    }
+    /**
+     * Returns the position that the player is moved to upon 
+     * waking up, or respawning at the bed.
+     * 
+     * @param world The current world
+     * @param x X Position
+     * @param y Y Position
+     * @param z Z Position
+     * @param entityHuman The player or camera entity, null in some cases.
+     * @return The spawn position
+     */
+    public ChunkCoordinates getBedSpawnPosition(World world, int x, int y, int z, EntityHuman entityHuman)
+    {
+        return BlockBed.f(world, x, y, z, 0);
+    }
+    /**
+     * Called when a user either starts or stops sleeping in the bed.
+     *  
+     * @param world The current world
+     * @param x X Position
+     * @param y Y Position
+     * @param z Z Position
+     * @param entityHuman The player or camera entity, null in some cases.
+     * @param occupied True if we are occupying the bed, or false if they are stopping use of the bed
+     */
+    public void setBedOccupied(World world, int x, int y, int z, EntityHuman entityHuman, boolean occupied)
+    {
+        BlockBed.a(world,  x, y, z, occupied);        
+    }
+    /**
+     * Returns the direction of the block. Same values that 
+     * are returned by BlockDirectional
+     * 
+     * @param world The current world
+     * @param x X Position
+     * @param y Y Position
+     * @param z Z Position
+     * @return Bed direction
+     */
+    public int getBedDirection(IBlockAccess world, int x, int y, int z) 
+    {
+        return BlockBed.b(world.getData(x, y, z));
+    }
+    /**
+     * Determines if the current block is the foot half of the bed.
+     * 
+     * @param world The current world
+     * @param x X Position
+     * @param y Y Position
+     * @param z Z Position
+     * @return True if the current block is the foot side of a bed.
+     */
+    public boolean isBedFoot(IBlockAccess world, int x, int y, int z)
+    {
+        return BlockBed.d(world.getData(x,  y, z));
+    }
+    
    public static int getDropData(Block block, int data) {
       return block.getDropData(data);
    }
